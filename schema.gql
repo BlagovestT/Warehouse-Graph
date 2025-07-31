@@ -1,0 +1,368 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  companyId: String!
+  username: String!
+  email: String!
+  role: Role!
+  modifiedBy: String
+  company: CompanyGQL!
+  modifiedByUser: UserType
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""User role permissions in the system"""
+enum Role {
+  owner
+  operator
+  viewer
+}
+
+type CompanyGQL {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  name: String!
+  modifiedBy: String
+  users: [UserType!]!
+  businessPartners: [BusinessPartnerType!]!
+  warehouses: [WarehouseType!]!
+  products: [ProductGQL!]!
+  orders: [OrderGQL!]!
+  invoices: [InvoiceGQL!]!
+  modifiedByUser: UserType
+}
+
+type LoginResponse {
+  access_token: String!
+  message: String!
+}
+
+type RegisterResponse {
+  message: String!
+}
+
+type CompanyInfo {
+  id: String!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserInfo {
+  id: String!
+  username: String!
+  email: String!
+  role: String!
+}
+
+type RegisterOwnerResponse {
+  message: String!
+  company: CompanyInfo!
+  user: UserInfo!
+}
+
+type BusinessPartnerType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  companyId: String!
+  name: String!
+  email: String!
+  type: BusinessPartnerTypes!
+  modifiedBy: String!
+  company: CompanyGQL!
+  modifiedByUser: UserType!
+  orders: [OrderGQL!]!
+}
+
+"""Type of business partner - customer or supplier"""
+enum BusinessPartnerTypes {
+  CUSTOMER
+  SUPPLIER
+}
+
+type CustomerWithMostOrdersType {
+  customerName: String!
+  companyName: String!
+  totalOrders: String!
+  totalItemsBought: String!
+}
+
+type WarehouseType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  companyId: String!
+  supportType: WarehouseSupportType!
+  name: String!
+  modifiedBy: String!
+  company: CompanyGQL!
+  modifiedByUser: UserType!
+  orders: [OrderGQL!]!
+}
+
+"""Type of materials the warehouse can support"""
+enum WarehouseSupportType {
+  SOLID
+  LIQUID
+  MIXED
+}
+
+type HighestStockType {
+  warehouse: String!
+  productName: String!
+  currentStock: String!
+}
+
+type ProductGQL {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  companyId: String!
+  name: String!
+  price: Float!
+  type: ProductType!
+  modifiedBy: String!
+  company: CompanyGQL!
+  modifiedByUser: UserType!
+  orderItems: [OrderItemGQL!]!
+}
+
+"""Physical state of the product"""
+enum ProductType {
+  SOLID
+  LIQUID
+}
+
+type BestSellingProductType {
+  productName: String!
+  price: String!
+  companyName: String!
+  totalSold: String!
+}
+
+type OrderGQL {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  companyId: String!
+  warehouseId: String!
+  businessPartnerId: String!
+  orderNumber: String!
+  type: OrderType!
+  modifiedBy: String!
+  company: CompanyGQL!
+  modifiedByUser: UserType!
+  businessPartner: BusinessPartnerType!
+  warehouse: WarehouseType!
+  orderItems: [OrderItemGQL!]!
+  invoice: InvoiceGQL
+}
+
+"""Type of order shipment (outgoing) or delivery (incoming)"""
+enum OrderType {
+  SHIPMENT
+  DELIVERY
+}
+
+type InvoiceGQL {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  companyId: String!
+  orderId: String!
+  invoiceNumber: String!
+  date: DateTime!
+  modifiedBy: String!
+  company: CompanyGQL!
+  order: OrderGQL!
+  modifiedByUser: UserType!
+}
+
+type OrderItemGQL {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  orderId: String!
+  productId: String!
+  quantity: Float!
+  modifiedBy: String!
+  order: OrderGQL!
+  product: ProductGQL!
+  modifiedByUser: UserType!
+}
+
+type Query {
+  users: [UserType!]!
+  user(id: String!): UserType!
+  companies: [CompanyGQL!]!
+  company(id: String!): CompanyGQL!
+  businessPartners: [BusinessPartnerType!]!
+  customerWithMostOrders: CustomerWithMostOrdersType
+  businessPartner(id: String!): BusinessPartnerType!
+  warehouses: [WarehouseType!]!
+  productWithHighestStock: HighestStockType
+  warehouse(id: String!): WarehouseType!
+  products: [ProductGQL!]!
+  bestSellingProduct: BestSellingProductType
+  product(id: String!): ProductGQL!
+  orders: [OrderGQL!]!
+  order(id: String!): OrderGQL!
+  invoices: [InvoiceGQL!]!
+  invoice(id: String!): InvoiceGQL!
+  orderItems: [OrderItemGQL!]!
+  orderItem(id: String!): OrderItemGQL!
+}
+
+type Mutation {
+  updateUser(id: String!, input: UpdateUserInput!): UserType!
+  deleteUser(id: String!): String!
+  login(input: LoginInput!): LoginResponse!
+  registerUser(input: RegisterUserInput!): RegisterResponse!
+  registerOwner(input: RegisterOwnerInput!): RegisterOwnerResponse!
+  createCompany(input: CreateCompanyInput!): CompanyGQL!
+  updateCompany(id: String!, input: UpdateCompanyInput!): CompanyGQL!
+  deleteCompany(id: String!): String!
+  createBusinessPartner(input: CreateBusinessPartnerInput!): BusinessPartnerType!
+  updateBusinessPartner(id: String!, input: UpdateBusinessPartnerInput!): BusinessPartnerType!
+  deleteBusinessPartner(id: String!): String!
+  createWarehouse(input: CreateWarehouseInput!): WarehouseType!
+  updateWarehouse(id: String!, input: UpdateWarehouseInput!): WarehouseType!
+  deleteWarehouse(id: String!): String!
+  createProduct(input: CreateProductInput!): ProductGQL!
+  updateProduct(id: String!, input: UpdateProductInput!): ProductGQL!
+  deleteProduct(id: String!): String!
+  createOrder(input: CreateOrderInput!): OrderGQL!
+  updateOrder(id: String!, input: UpdateOrderInput!): OrderGQL!
+  deleteOrder(id: String!): String!
+  createInvoice(input: CreateInvoiceInput!): InvoiceGQL!
+  updateInvoice(id: String!, input: UpdateInvoiceInput!): InvoiceGQL!
+  deleteInvoice(id: String!): String!
+  createOrderItem(input: CreateOrderItemInput!): OrderItemGQL!
+  updateOrderItem(id: String!, input: UpdateOrderItemInput!): OrderItemGQL!
+  deleteOrderItem(id: String!): String!
+}
+
+input UpdateUserInput {
+  username: String
+  email: String
+  password: String
+  role: Role
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RegisterUserInput {
+  username: String!
+  email: String!
+  password: String!
+  role: String!
+}
+
+input RegisterOwnerInput {
+  companyName: String!
+  username: String!
+  email: String!
+  password: String!
+}
+
+input CreateCompanyInput {
+  name: String!
+}
+
+input UpdateCompanyInput {
+  name: String!
+}
+
+input CreateBusinessPartnerInput {
+  type: BusinessPartnerTypes!
+  name: String!
+  email: String!
+}
+
+input UpdateBusinessPartnerInput {
+  type: BusinessPartnerTypes!
+  name: String!
+  email: String!
+}
+
+input CreateWarehouseInput {
+  supportType: WarehouseSupportType!
+  name: String!
+}
+
+input UpdateWarehouseInput {
+  supportType: WarehouseSupportType
+  name: String
+}
+
+input CreateProductInput {
+  name: String!
+  price: Float!
+  type: ProductType!
+}
+
+input UpdateProductInput {
+  name: String!
+  price: Float!
+  type: ProductType!
+}
+
+input CreateOrderInput {
+  warehouseId: String!
+  businessPartnerId: String!
+  orderNumber: String!
+  type: OrderType!
+}
+
+input UpdateOrderInput {
+  warehouseId: String!
+  businessPartnerId: String!
+  orderNumber: String!
+  type: OrderType!
+}
+
+input CreateInvoiceInput {
+  companyId: String!
+  orderId: String!
+  invoiceNumber: String!
+  date: DateTime!
+}
+
+input UpdateInvoiceInput {
+  orderId: String!
+  invoiceNumber: String!
+  date: DateTime!
+}
+
+input CreateOrderItemInput {
+  orderId: String!
+  productId: String!
+  quantity: Float!
+}
+
+input UpdateOrderItemInput {
+  productId: String!
+  quantity: Float!
+}
