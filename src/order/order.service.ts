@@ -1,7 +1,8 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Order } from './order.entity';
+import { Invoice } from '../invoice/invoice.entity';
 import { BaseService } from '../common/services/base.service';
 import { CreateOrderData, UpdateOrderData } from './order.type';
 
@@ -10,6 +11,9 @@ export class OrderService extends BaseService<Order> {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Invoice)
+    private readonly invoiceRepository: Repository<Invoice>,
+    private readonly dataSource: DataSource,
   ) {
     super(orderRepository);
   }
@@ -32,22 +36,48 @@ export class OrderService extends BaseService<Order> {
   ): Promise<Order> {
     const { orderNumber, companyId } = orderData;
 
-    const existingOrder = await this.orderRepository.findOne({
-      where: { orderNumber, companyId },
+    return await this.dataSource.transaction(async (manager) => {
+      const existingOrder = await manager.findOne(Order, {
+        where: { orderNumber, companyId },
+      });
+
+      if (existingOrder) {
+        throw new ConflictException(
+          'Order number already exists in your company',
+        );
+      }
+
+      const order = manager.create(Order, {
+        ...orderData,
+        modifiedBy: modifiedById,
+      });
+
+      const savedOrder = await manager.save(Order, order);
+
+      const invoiceNumber = `INV-${orderNumber}`;
+
+      const existingInvoice = await manager.findOne(Invoice, {
+        where: { invoiceNumber, companyId },
+      });
+
+      if (existingInvoice) {
+        throw new ConflictException(
+          `Auto-generated invoice number ${invoiceNumber} already exists`,
+        );
+      }
+
+      const invoice = manager.create(Invoice, {
+        companyId,
+        orderId: savedOrder.id,
+        invoiceNumber,
+        date: new Date(),
+        modifiedBy: modifiedById,
+      });
+
+      await manager.save(Invoice, invoice);
+
+      return savedOrder;
     });
-
-    if (existingOrder) {
-      throw new ConflictException(
-        'Order number already exists in your company',
-      );
-    }
-
-    const order = this.orderRepository.create({
-      ...orderData,
-      modifiedBy: modifiedById,
-    });
-
-    return await this.orderRepository.save(order);
   }
 
   async updateOrder(

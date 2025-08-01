@@ -27,6 +27,7 @@ import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { Roles } from '../common/decorators/role.decorator';
+import { AnyRole } from '../common/decorators/role.decorator';
 import { Role } from '../common/enums/role.enum';
 import { UserFromToken } from '../common/guards/jwt.guard';
 
@@ -41,7 +42,7 @@ export class WarehouseResolver {
 
   @Query(() => [WarehouseType])
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async warehouses(
     @GetUser() currentUser: UserFromToken,
   ): Promise<WarehouseType[]> {
@@ -50,7 +51,7 @@ export class WarehouseResolver {
 
   @Query(() => HighestStockType, { nullable: true })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async productWithHighestStock(
     @GetUser() currentUser: UserFromToken,
   ): Promise<HighestStockType | null> {
@@ -66,7 +67,7 @@ export class WarehouseResolver {
 
   @Query(() => WarehouseType)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async warehouse(
     @Args('id') id: string,
     @GetUser() currentUser: UserFromToken,

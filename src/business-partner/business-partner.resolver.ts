@@ -28,6 +28,7 @@ import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { Roles } from '../common/decorators/role.decorator';
+import { AnyRole } from '../common/decorators/role.decorator';
 import { Role } from '../common/enums/role.enum';
 import { UserFromToken } from '../common/guards/jwt.guard';
 
@@ -42,7 +43,7 @@ export class BusinessPartnerResolver {
 
   @Query(() => [BusinessPartnerType])
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async businessPartners(
     @GetUser() currentUser: UserFromToken,
   ): Promise<BusinessPartnerType[]> {
@@ -53,7 +54,7 @@ export class BusinessPartnerResolver {
 
   @Query(() => CustomerWithMostOrdersType, { nullable: true })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async customerWithMostOrders(
     @GetUser() currentUser: UserFromToken,
   ): Promise<CustomerWithMostOrdersResult | null> {
@@ -64,7 +65,7 @@ export class BusinessPartnerResolver {
 
   @Query(() => BusinessPartnerType)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async businessPartner(
     @Args('id') id: string,
     @GetUser() currentUser: UserFromToken,

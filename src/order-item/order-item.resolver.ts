@@ -26,6 +26,7 @@ import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { Roles } from '../common/decorators/role.decorator';
+import { AnyRole } from '../common/decorators/role.decorator';
 import { Role } from '../common/enums/role.enum';
 import { UserFromToken } from '../common/guards/jwt.guard';
 
@@ -40,7 +41,7 @@ export class OrderItemResolver {
 
   @Query(() => [OrderItemType])
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async orderItems(
     @GetUser() currentUser: UserFromToken,
   ): Promise<OrderItemType[]> {
@@ -49,7 +50,7 @@ export class OrderItemResolver {
 
   @Query(() => OrderItemType)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async orderItem(
     @Args('id') id: string,
     @GetUser() currentUser: UserFromToken,

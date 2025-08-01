@@ -57,6 +57,30 @@ export class WarehouseService extends BaseService<Warehouse> {
     return await this.warehouseRepository.save(warehouse);
   }
 
+  private async warehouseHasStock(warehouseId: string, companyId: string) {
+    const count = await this.warehouseRepository
+      .createQueryBuilder('warehouse')
+      .select(
+        `SUM(CASE WHEN "order".type = 'delivery' THEN orderItem.quantity ELSE 0 END) -
+       SUM(CASE WHEN "order".type = 'shipment' THEN orderItem.quantity ELSE 0 END)`,
+        'totalStock',
+      )
+      .innerJoin('order', 'order', 'order.warehouse_id = warehouse.id')
+      .innerJoin('order_item', 'orderItem', 'orderItem.order_id = order.id')
+      .where('warehouse.id = :warehouseId', { warehouseId })
+      .andWhere('warehouse.company_id = :companyId', { companyId })
+      .andWhere('warehouse.deleted_at IS NULL')
+      .andWhere('order.deleted_at IS NULL')
+      .andWhere('orderItem.deleted_at IS NULL')
+      .getCount();
+
+    if (count > 0) {
+      throw new ConflictException(
+        'Cannot change warehouse support type with existing products in it',
+      );
+    }
+  }
+
   async updateWarehouse(
     id: string,
     updateData: UpdateWarehouseData,
@@ -75,6 +99,15 @@ export class WarehouseService extends BaseService<Warehouse> {
           'Warehouse name already exists in your company',
         );
       }
+    }
+
+    if (
+      updateData.supportType &&
+      updateData.supportType !== warehouse.supportType
+    ) {
+      await this.warehouseHasStock(id, userCompanyId);
+
+      // If hasStock is 0 (false), allow the change
     }
 
     await this.warehouseRepository.update(id, {

@@ -42,6 +42,8 @@ type CompanyGQL {
   orders: [OrderGQL!]!
   invoices: [InvoiceGQL!]!
   modifiedByUser: UserType
+  topProduct: BestSellingProductType!
+  topCustomer: CustomerWithMostOrdersType!
 }
 
 type LoginResponse {

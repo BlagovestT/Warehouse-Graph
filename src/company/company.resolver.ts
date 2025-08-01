@@ -16,9 +16,12 @@ import {
   updateCompanySchema,
 } from './company.type';
 import { UserType } from '../user/user.type';
-import { BusinessPartnerType } from '../business-partner/business-partner.type';
+import {
+  BusinessPartnerType,
+  CustomerWithMostOrdersType,
+} from '../business-partner/business-partner.type';
 import { WarehouseType } from '../warehouse/warehouse.type';
-import { ProductType } from '../product/product.type';
+import { ProductType, BestSellingProductType } from '../product/product.type';
 import { OrderType } from '../order/order.type';
 import { InvoiceType } from '../invoice/invoice.type';
 import { UserService } from '../user/user.service';
@@ -32,6 +35,7 @@ import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { Roles } from '../common/decorators/role.decorator';
+import { AnyRole } from '../common/decorators/role.decorator';
 import { Role } from '../common/enums/role.enum';
 import { UserFromToken } from '../common/guards/jwt.guard';
 
@@ -49,7 +53,7 @@ export class CompanyResolver {
 
   @Query(() => [CompanyType])
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async companies(
     @GetUser() currentUser: UserFromToken,
   ): Promise<CompanyType[]> {
@@ -58,7 +62,7 @@ export class CompanyResolver {
 
   @Query(() => CompanyType)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.viewer, Role.operator, Role.owner)
+  @AnyRole()
   async company(
     @Args('id') id: string,
     @GetUser() currentUser: UserFromToken,
@@ -148,5 +152,19 @@ export class CompanyResolver {
   ): Promise<UserType | null> {
     if (!company.modifiedBy) return null;
     return await this.userService.getUserById(company.modifiedBy, company.id);
+  }
+
+  @ResolveField(() => BestSellingProductType)
+  async topProduct(
+    @Parent() company: CompanyType,
+  ): Promise<BestSellingProductType> {
+    return this.productService.getBestSellingProducts(company.id);
+  }
+
+  @ResolveField(() => CustomerWithMostOrdersType)
+  async topCustomer(
+    @Parent() company: CompanyType,
+  ): Promise<CustomerWithMostOrdersType> {
+    return this.businessPartnersService.getCustomerWithMostOrders(company.id);
   }
 }

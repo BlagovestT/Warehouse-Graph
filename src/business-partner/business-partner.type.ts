@@ -52,7 +52,7 @@ export class CreateBusinessPartnerInput {
 @InputType()
 export class UpdateBusinessPartnerInput {
   @Field(() => BusinessPartnerTypes)
-  type: BusinessPartnerTypes;
+  type!: BusinessPartnerTypes;
 
   @Field()
   name: string;
@@ -62,7 +62,6 @@ export class UpdateBusinessPartnerInput {
 }
 
 export const createBusinessPartnersSchema = z.object({
-  companyId: z.uuid(),
   name: z.string().min(2).max(255).trim(),
   email: z.email(),
   type: z.enum(BusinessPartnerTypes),

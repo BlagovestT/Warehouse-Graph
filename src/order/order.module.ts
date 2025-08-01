@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderResolver } from './order.resolver';
 import { OrderService } from './order.service';
 import { Order } from './order.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CompanyModule } from '../company/company.module';
 import { UserModule } from '../user/user.module';
@@ -13,7 +14,7 @@ import { InvoiceModule } from '../invoice/invoice.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order]),
+    TypeOrmModule.forFeature([Order, Invoice]),
     forwardRef(() => AuthModule),
     forwardRef(() => CompanyModule),
     forwardRef(() => UserModule),
